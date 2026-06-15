@@ -1,63 +1,56 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { anthropic } from "@ai-sdk/anthropic";
+import { jsonSchema, streamText, tool, type ToolSet } from "ai";
 
 import type { ModelAdapter, ModelStreamArgs, NormalisedEvent } from "./adapter";
 
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5";
 const MAX_TOKENS = 2048;
 
+/**
+ * Routes the model through the Vercel AI SDK Core (`streamText`) rather than the
+ * raw `@anthropic-ai/sdk`. The provider is swappable in one line — point `model`
+ * at `openai(...)` / `google(...)` and the same typed registry renders unchanged.
+ * That swappability is the vendor-neutrality proof; the registry/route/renderer
+ * never learn which provider produced the stream.
+ *
+ * Tools are schema-only (no `execute`): the model's tool-call *is* the artifact,
+ * so generation runs a single step and finishes on `tool-calls`. AI SDK Core
+ * accumulates the partial tool-input JSON internally, so we consume complete
+ * `tool-call` parts and never deal with partial input at this boundary.
+ */
 export class AnthropicAdapter implements ModelAdapter {
   readonly name = "anthropic";
-  private client: Anthropic;
-
-  constructor(client?: Anthropic) {
-    this.client = client ?? new Anthropic();
-  }
 
   async *stream(args: ModelStreamArgs): AsyncIterable<NormalisedEvent> {
-    const stream = this.client.messages.stream({
-      model: args.model ?? DEFAULT_MODEL,
-      max_tokens: MAX_TOKENS,
+    const tools: ToolSet = Object.fromEntries(
+      args.tools.map((t) => [
+        t.name,
+        tool({
+          description: t.description,
+          inputSchema: jsonSchema(t.input_schema),
+        }),
+      ]),
+    );
+
+    const result = streamText({
+      model: anthropic(args.model ?? DEFAULT_MODEL),
+      maxOutputTokens: MAX_TOKENS,
       system: args.system,
       messages: args.messages,
-      tools: args.tools.map((t) => ({
-        name: t.name,
-        description: t.description,
-        // Anthropic's SDK types input_schema with required `type: "object"`.
-        input_schema: t.input_schema as { type: "object"; [k: string]: unknown },
-      })),
+      tools,
+      toolChoice: "auto",
     });
 
-    let activeToolName: string | null = null;
-    let activeToolJson = "";
-
-    for await (const event of stream) {
-      switch (event.type) {
-        case "content_block_start":
-          if (event.content_block.type === "tool_use") {
-            activeToolName = event.content_block.name;
-            activeToolJson = "";
-          }
+    for await (const part of result.fullStream) {
+      switch (part.type) {
+        case "text-delta":
+          yield { type: "text-delta", text: part.text };
           break;
-
-        case "content_block_delta":
-          if (event.delta.type === "text_delta") {
-            yield { type: "text-delta", text: event.delta.text };
-          } else if (event.delta.type === "input_json_delta") {
-            activeToolJson += event.delta.partial_json;
-          }
+        case "tool-call":
+          yield { type: "tool-use", name: part.toolName, input: part.input };
           break;
-
-        case "content_block_stop":
-          if (activeToolName !== null) {
-            // Anthropic sends an empty string for tool calls with no args;
-            // treat that as {} rather than a JSON parse error.
-            const input =
-              activeToolJson.length === 0 ? {} : JSON.parse(activeToolJson);
-            yield { type: "tool-use", name: activeToolName, input };
-            activeToolName = null;
-            activeToolJson = "";
-          }
-          break;
+        case "error":
+          throw part.error;
       }
     }
 
