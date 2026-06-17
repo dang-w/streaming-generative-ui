@@ -1,20 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
 
+import { ArtifactBand } from "@/components/plate/ArtifactBand";
+import { Masthead } from "@/components/plate/Masthead";
+import { PlateShell } from "@/components/plate/PlateShell";
+import { Readout } from "@/components/plate/Readout";
+import { RegistryStrip } from "@/components/plate/RegistryStrip";
+import { ZoneTag } from "@/components/plate/ZoneTag";
 import { useArtifactStream } from "@/hooks/useArtifactStream";
+import { bandCaption, streamingItemId } from "@/lib/bandMeta";
 import { renderArtifact } from "@/lib/renderArtifact";
 
-// Pre-fill the input so a first-time visitor has a working example to run (and
-// to follow along with) rather than a blank box + a placeholder that vanishes
-// the moment they type.
 const EXAMPLE_PROMPT =
   "Show me a quarterly performance snapshot: a sales trend chart, a few headline metrics, and a table of top accounts.";
 
 export default function Home() {
   const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
   const { items, status, error, send, reset } = useArtifactStream();
+
+  const artifactCount = items.filter((it) => it.type === "artifact").length;
+  const activeId = streamingItemId(items, status);
 
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,68 +30,72 @@ export default function Home() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-6 py-12">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Streaming generative UI
-          </h1>
-          <p className="text-sm text-zinc-500">
-            A typed component registry rendered from a streamed agent response.
-          </p>
+    <PlateShell>
+      {/* ===== ZONE 1 — INSTRUMENT ===== */}
+      <div className="mb-1 border-b-[1.4px] border-ink-1 pb-[22px]">
+        <ZoneTag label="System · internals" />
+        <div className="flex items-start justify-between gap-[30px]">
+          <Masthead onReset={reset} showReset={items.length > 0} />
+          <Readout status={status} artifactCount={artifactCount} />
         </div>
-        {items.length > 0 && (
-          <button
-            type="button"
-            onClick={reset}
-            className="text-xs text-zinc-500 underline hover:text-zinc-700 dark:hover:text-zinc-300"
-          >
-            Clear
-          </button>
-        )}
-      </header>
+        <RegistryStrip />
+      </div>
 
-      <form className="flex flex-col gap-3" onSubmit={onSubmit}>
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="e.g. show me a quarterly sales chart and a one-paragraph summary, with a short narration first"
-          rows={3}
-          disabled={status === "streaming"}
-          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-500 focus:outline-none disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900"
-        />
-        <button
-          type="submit"
-          disabled={!prompt.trim() || status === "streaming"}
-          className="self-end rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900"
-        >
-          {status === "streaming" ? "Streaming…" : "Generate"}
-        </button>
-      </form>
-
-      {error && (
-        <aside
-          role="alert"
-          className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200"
-        >
-          {error}
-        </aside>
-      )}
-
-      <section className="flex flex-col gap-4" aria-label="Stream output">
-        {items.map((item) =>
-          item.type === "text" ? (
-            <div
-              key={item.id}
-              className="prose prose-sm prose-zinc max-w-none text-zinc-700 dark:prose-invert dark:text-zinc-300"
+      {/* ===== ZONE 2 — STREAM ===== */}
+      <div className="pt-[22px]">
+        <ZoneTag label="Output · streamed" />
+        <form className="mb-6" onSubmit={onSubmit}>
+          <div className="text-[9px] uppercase tracking-[0.16em] text-ink-3">
+            Prompt
+          </div>
+          <div className="mt-2 flex items-stretch gap-3">
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={2}
+              disabled={status === "streaming"}
+              className="flex-1 resize-none border-[0.8px] border-ink-2 bg-paper-zone px-3.5 py-3 text-xs text-ink-1 focus:outline-none disabled:opacity-60"
+            />
+            <button
+              type="submit"
+              disabled={!prompt.trim() || status === "streaming"}
+              className="border border-ink-1 bg-paper px-5 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-1 disabled:opacity-40"
             >
-              <ReactMarkdown>{item.text}</ReactMarkdown>
-            </div>
-          ) : (
-            <div key={item.id}>{renderArtifact(item.kind, item.props)}</div>
-          ),
+              ▶ Generate
+            </button>
+          </div>
+        </form>
+
+        {error && (
+          <aside
+            role="alert"
+            className="mb-6 border-l-2 border-red bg-paper-zone px-4 py-3 text-[10px] text-ink-2"
+          >
+            <span className="text-[9px] uppercase tracking-[0.16em] text-red">
+              Stream error —{" "}
+            </span>
+            {error}
+          </aside>
         )}
-      </section>
-    </main>
+
+        {items.map((item) => (
+          <ArtifactBand
+            key={item.id}
+            caption={bandCaption(item)}
+            kind={item.type === "text" ? "text" : (item.kind as "chart" | "table" | "metric" | "text")}
+            streaming={item.id === activeId}
+          >
+            {item.type === "text" ? (
+              <article className="prose prose-sm max-w-[66ch] text-ink-1">
+                {item.text}
+                {item.id === activeId && <span className="stream-cursor" />}
+              </article>
+            ) : (
+              renderArtifact(item.kind, item.props)
+            )}
+          </ArtifactBand>
+        ))}
+      </div>
+    </PlateShell>
   );
 }
