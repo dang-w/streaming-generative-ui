@@ -1,7 +1,7 @@
 import type { ModelAdapter, ModelStreamArgs, NormalisedEvent } from "./adapter";
 
-const INTRO =
-  "Here's a quick snapshot of the company's quarterly performance and top accounts.";
+export const STUB_INTRO =
+  "Here's a quarterly performance snapshot built from your request. I'll start with a revenue chart so the shape of the year is clear, then surface the headline metric that summarises it, and finish with the table of top accounts by ARR. Each block below is a separate typed artifact, streamed and rendered as it arrives.";
 
 const CHART_INPUT = {
   variant: "bar" as const,
@@ -49,7 +49,7 @@ export class StubAdapter implements ModelAdapter {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async *stream(_args: ModelStreamArgs): AsyncIterable<NormalisedEvent> {
     // Stream the intro word-by-word so the demo actually shows progressive text.
-    const words = INTRO.split(" ");
+    const words = STUB_INTRO.split(" ");
     for (let i = 0; i < words.length; i++) {
       await sleep(60);
       yield { type: "text-delta", text: (i === 0 ? "" : " ") + words[i] };
