@@ -84,7 +84,7 @@ export default function DevPage() {
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Registry dev page</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-ink-3">
           Static fixtures rendered through{" "}
           <code className="font-mono">renderArtifact()</code> — proves all
           artifacts + fallbacks before wiring the model.
@@ -93,7 +93,7 @@ export default function DevPage() {
 
       {fixtures.map((f, i) => (
         <section key={i} className="flex flex-col gap-2">
-          <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          <h2 className="text-xs font-medium uppercase tracking-wider text-ink-3">
             {f.label}
           </h2>
           {renderArtifact(f.kind, f.props)}

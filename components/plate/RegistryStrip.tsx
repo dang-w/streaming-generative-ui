@@ -18,7 +18,7 @@ export function RegistryStrip() {
           Artifact Schedule · the registry
         </span>
         <span className="text-[9px] tracking-[0.03em] text-ink-3">
-          // one entry per kind — tool, validation &amp; render all derive from it
+          {"// one entry per kind — tool, validation & render all derive from it"}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-x-[18px] gap-y-2 md:grid-cols-4">

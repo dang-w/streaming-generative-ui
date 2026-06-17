@@ -88,7 +88,9 @@ Seven decisions worth defending out loud.
 
 6. **Streaming is plain SSE over POST.** `EventSource` is GET-only, which would have meant URL-encoding the prompt — fine for one-token, ugly for anything real. Manual `fetch` + a tiny SSE parser is ~30 lines, supports `AbortController` cancellation, and keeps the wire protocol observable in a `curl -N`.
 
-7. **Schemas live in a non-`"use client"` module.** First attempt co-located Zod schemas with their components. Recharts forced `ChartArtifact` to be `"use client"`, and Next.js then replaced *every* export from that module with a client-reference proxy when the registry (a server module) tried to import it — so `entry.schema.safeParse` came back as `undefined` at runtime. Schemas moved to `lib/schemas.ts`; components keep type-only imports for their prop types. This also unblocks server-side tool-def derivation in `lib/tools.ts`.
+7. **Schemas live in a non-`"use client"` module.** First attempt co-located Zod schemas with their components. The chart artifact is a client component (it animates on mount), and Next.js then replaced *every* export from that module with a client-reference proxy when the registry (a server module) tried to import it — so `entry.schema.safeParse` came back as `undefined` at runtime. Schemas moved to `lib/schemas.ts`; components keep type-only imports for their prop types. This also unblocks server-side tool-def derivation in `lib/tools.ts`.
+
+8. **The chart is a custom inline SVG component, not a chart library.** v2 replaced Recharts with a small `Chart.tsx` driven by a pure `lib/chartGeometry.ts` (data → SVG coordinates). Recharts couldn't cleanly produce the engineering-plot aesthetic (mono dimension-line axes, the latest point ringed "active") *or* the line-draw stream-in motion (`pathLength` dash-offset), and dropping it removed a heavy dependency. The component takes the same `chartSchema` props.
 
 ---
 
@@ -132,7 +134,8 @@ app/
   dev/page.tsx               # Static fixture page (Phase-1 visual check)
   page.tsx                   # The live demo
 components/artifacts/
-  ChartArtifact.tsx          # Recharts bar/line
+  ChartArtifact.tsx          # Thin wrapper over the custom SVG Chart
+  Chart.tsx                  # Custom inline SVG chart (no chart lib)
   TableArtifact.tsx          # Plain HTML + Tailwind
   TextArtifact.tsx           # react-markdown
   UnknownArtifact.tsx        # Fallback: kind not in registry
@@ -160,5 +163,5 @@ PLAN.md                      # The session execution tracker
 - `@anthropic-ai/sdk` for streaming + tool use
 - Zod 4 (uses native `z.toJSONSchema`, no third-party converter)
 - Tailwind v4 + `@tailwindcss/typography`
-- Recharts (chart artifact), react-markdown (text artifact)
+- Custom inline SVG chart (no chart library), react-markdown (text artifact)
 - Dev model: `claude-haiku-4-5`. Demo model: `claude-sonnet-4-6`. Both configurable via `ANTHROPIC_MODEL`.
