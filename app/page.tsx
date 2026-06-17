@@ -6,8 +6,14 @@ import ReactMarkdown from "react-markdown";
 import { useArtifactStream } from "@/hooks/useArtifactStream";
 import { renderArtifact } from "@/lib/renderArtifact";
 
+// Pre-fill the input so a first-time visitor has a working example to run (and
+// to follow along with) rather than a blank box + a placeholder that vanishes
+// the moment they type.
+const EXAMPLE_PROMPT =
+  "Show me a quarterly performance snapshot: a sales trend chart, a few headline metrics, and a table of top accounts.";
+
 export default function Home() {
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
   const { items, status, error, send, reset } = useArtifactStream();
 
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
