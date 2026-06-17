@@ -74,7 +74,7 @@ The architectural claim is small and concrete: **the registry is the single sour
 
 ## Architectural decisions
 
-Seven decisions worth defending out loud.
+Eight decisions worth defending out loud.
 
 1. **The registry is typed with `satisfies` (via a generic `entry<S>()` constructor), not annotated as a `Record`.** A flat `satisfies Record<string, { schema: ZodType, Component: ComponentType<…> }>` collapses `z.infer<ZodType>` to `unknown`, which breaks React's contravariant `ComponentType` typing. The `entry<S>()` helper threads the schema generic through to the component's prop type, so the registry literally refuses to pair `TextArtifact` with `chartSchema` at the type level. `satisfies` then preserves the literal keys (`"chart" | "table" | "text"`), which is what makes `keyof typeof registry` a real union rather than `string`.
 
