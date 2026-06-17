@@ -24,20 +24,26 @@ export default function Home() {
 
   // Coalesce consecutive metric artifacts so headline metrics share one grid band.
   const units = groupTimeline(items);
-  const activeUnit = units.find((u) =>
-    u.kind === "item" ? u.id === activeId : u.items.some((m) => m.id === activeId),
-  );
-  const activeUnitId = activeUnit?.id ?? null;
 
-  // Keep the actively-streaming band roughly centred as the run progresses.
-  // Streaming-only, and honours reduced-motion (no yank after completion).
+  // The render unit holding the newest item — the scroll target as the run grows.
+  const lastItem = items[items.length - 1];
+  const lastUnit = lastItem
+    ? units.find((u) =>
+        u.kind === "item" ? u.id === lastItem.id : u.items.some((m) => m.id === lastItem.id),
+      )
+    : undefined;
+  const lastUnitId = lastUnit?.id ?? null;
+
+  // Keep the newest band roughly centred as the run progresses. Streaming-only
+  // (no yank after completion). Honours reduced-motion by jumping instantly
+  // instead of skipping — the page still follows, just without the animation.
   useEffect(() => {
-    if (status !== "streaming" || !activeUnitId) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    document
-      .getElementById(`band-${activeUnitId}`)
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [activeUnitId, status]);
+    if (status !== "streaming" || !lastUnitId) return;
+    const el = document.getElementById(`band-${lastUnitId}`);
+    if (!el) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  }, [lastUnitId, status]);
 
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -101,7 +107,10 @@ export default function Home() {
               <ArtifactBand
                 caption="Headline Metrics"
                 kind="metric"
-                streaming={unit.items.some((m) => m.id === activeId)}
+                // No traveling border on the metric grid — the reserved empty
+                // cells make the inset look broken; the cards' stagger-in is the
+                // motion (matches the mockup, where metrics had no bordered view).
+                streaming={false}
               >
                 <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-3">
                   {unit.items.map((m) =>
@@ -124,7 +133,7 @@ export default function Home() {
                 streaming={unit.item.id === activeId}
               >
                 {unit.item.type === "text" ? (
-                  <article className="prose prose-sm max-w-[80ch] text-ink-1">
+                  <article className="prose prose-sm max-w-none text-ink-1">
                     {unit.item.text}
                     {unit.item.id === activeId && <span className="stream-cursor" />}
                   </article>
