@@ -18,3 +18,8 @@ export const systemPrompt = [
   "You may emit multiple artifacts in one response. Prefer artifacts over plain text whenever the data suits one.",
   "If the user requests an artifact without providing data, invent plausible illustrative values and render it anyway — do not ask for clarification first.",
 ].join(" ");
+
+// The model id shown in the Readout. Mirrors the anthropic adapter default so
+// the panel states a true fact (spec §2). Override via ANTHROPIC_MODEL.
+export const DEFAULT_MODEL_LABEL =
+  process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5";
