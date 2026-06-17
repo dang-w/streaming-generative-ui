@@ -2,6 +2,8 @@
 
 import { useCallback, useRef, useState } from "react";
 
+import { createCoalescer } from "@/lib/frameScheduler";
+
 export type TimelineItem =
   | { id: string; type: "text"; text: string }
   | { id: string; type: "artifact"; kind: string; props: unknown };
@@ -29,15 +31,16 @@ export function useArtifactStream() {
     setError(null);
     setStatus("streaming");
 
-    // Current text-run (deltas accumulate into one item until an artifact
-    // closes the run). Held in refs to avoid stale-closure reads inside the
-    // SSE read loop.
+    // Current text-run (deltas accumulate into one item until an artifact closes
+    // the run). Held in refs to avoid stale-closure reads inside the SSE loop.
     let currentTextId: string | null = null;
     let currentText = "";
 
-    const appendDelta = (delta: string) => {
-      currentText += delta;
+    // Commit the accumulated text-run to state. Creates the item on first flush,
+    // updates it thereafter. Called by the coalescer at most once per frame.
+    const flushText = () => {
       if (currentTextId === null) {
+        if (currentText === "") return;
         const id = crypto.randomUUID();
         currentTextId = id;
         const snapshot = currentText;
@@ -51,7 +54,17 @@ export function useArtifactStream() {
       }
     };
 
+    // Batches token updates: many appendDelta() calls coalesce into one render
+    // per animation frame instead of one render per character.
+    const textBatch = createCoalescer(flushText);
+
+    const appendDelta = (delta: string) => {
+      currentText += delta;
+      textBatch.request();
+    };
+
     const pushArtifact = (kind: string, props: unknown) => {
+      textBatch.flush(); // commit any pending streamed text before the artifact
       currentTextId = null;
       currentText = "";
       setItems((prev) => [
@@ -101,19 +114,23 @@ export function useArtifactStream() {
           } else if (event.type === "artifact") {
             pushArtifact(event.kind, event.props);
           } else if (event.type === "error") {
+            textBatch.cancel();
             setError(event.message);
             setStatus("error");
             return;
           } else if (event.type === "done") {
+            textBatch.flush();
             setStatus("done");
             return;
           }
         }
       }
 
-      // Stream closed without a `done` event — treat as success.
+      // Stream closed without a `done` event — flush any tail and treat as success.
+      textBatch.flush();
       setStatus("done");
     } catch (e) {
+      textBatch.cancel();
       if (ctl.signal.aborted) return;
       setError(e instanceof Error ? e.message : String(e));
       setStatus("error");
