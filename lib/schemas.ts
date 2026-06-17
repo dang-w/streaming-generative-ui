@@ -22,3 +22,19 @@ export const tableSchema = z.object({
 export const textSchema = z.object({
   markdown: z.string().describe("Markdown body for a deliberate prose block."),
 });
+
+export const metricSchema = z.object({
+  label: z.string().describe("What the metric measures, e.g. 'Monthly active users'."),
+  value: z
+    .union([z.string(), z.number()])
+    .describe("The headline value to display large."),
+  unit: z.string().optional().describe("Optional unit suffix, e.g. '%', 'ms', 'k'."),
+  delta: z
+    .number()
+    .optional()
+    .describe("Optional change vs the prior period; sign drives up/down styling."),
+  caption: z
+    .string()
+    .optional()
+    .describe("Optional one-line context shown under the value."),
+});

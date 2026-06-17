@@ -2,10 +2,11 @@ import type { ComponentType } from "react";
 import type { z } from "zod";
 
 import { ChartArtifact } from "@/components/artifacts/ChartArtifact";
+import { MetricArtifact } from "@/components/artifacts/MetricArtifact";
 import { TableArtifact } from "@/components/artifacts/TableArtifact";
 import { TextArtifact } from "@/components/artifacts/TextArtifact";
 
-import { chartSchema, tableSchema, textSchema } from "./schemas";
+import { chartSchema, metricSchema, tableSchema, textSchema } from "./schemas";
 
 type RegistryEntry<S extends z.ZodType> = {
   schema: S;
@@ -31,6 +32,11 @@ export const registry = {
     "Render a bar or line chart for trends, comparisons, or numeric series.",
   ),
   table: entry(tableSchema, TableArtifact, "Render structured rows with named columns."),
+  metric: entry(
+    metricSchema,
+    MetricArtifact,
+    "Render a single headline metric as a stat card (label, value, optional unit, delta, and caption).",
+  ),
   text: entry(
     textSchema,
     TextArtifact,
