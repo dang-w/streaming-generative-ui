@@ -1,27 +1,110 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ===== SECTION design tokens (genUI v2) ===== */
+@theme {
+  --color-paper: #fff8e7;
+  --color-paper-zone: #f5f0e6;
+  --color-ink-1: #2a2a2a; /* edges / primary */
+  --color-ink-2: #555555; /* secondary, dimension/labels */
+  --color-ink-3: #999999; /* construction / sub-labels */
+  --color-ink-4: #cccccc; /* ghost grid */
+  --color-orange: #ff4f00; /* active / streaming */
+  --color-amber: #f0a300; /* metadata / schema refs */
+  --color-red: #e03020; /* reserved: section-cut / alert */
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --paper: #fff8e7;
+  --paper-zone: #f5f0e6;
+  --ink-1: #2a2a2a;
+  --ink-2: #555555;
+  --ink-3: #999999;
+  --ink-4: #cccccc;
+  --orange: #ff4f00;
+  --amber: #f0a300;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #e9e2d0; /* desk behind the sheet */
+  color: var(--ink-1);
+  font-family: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, Consolas,
+    monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Plate chrome (awkward in Tailwind; kept as a class) ===== */
+.plate-sheet {
+  position: relative;
+  background: var(--paper);
+  background-image: radial-gradient(var(--ink-4) 0.5px, transparent 0.5px);
+  background-size: 22px 22px;
+  background-position: 18px 18px;
+  border: 1.6px solid var(--ink-1);
+  padding: 14px;
+}
+.plate-sheet::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 0.5px solid var(--ink-3);
+  pointer-events: none;
+}
+
+/* ===== Stream-in motion (driven by .band / .is-streaming toggles) ===== */
+.band {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.band.show {
+  opacity: 1;
+  transform: none;
+}
+.band-view.is-streaming {
+  box-shadow: 0 0 0 1.5px var(--orange) inset;
+}
+
+/* chart line-draw */
+.chart-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.chart-line.draw {
+  transition: stroke-dashoffset 1.15s ease-out;
+  stroke-dashoffset: 0;
+}
+.chart-point {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.chart-point.draw {
+  opacity: 1;
+}
+
+/* metric / table stagger-in (delay set inline per index) */
+.stagger {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.stagger.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* streaming text cursor */
+.stream-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  background: var(--orange);
+  vertical-align: -2px;
+  margin-left: 2px;
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
 }
