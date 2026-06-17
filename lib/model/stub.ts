@@ -26,6 +26,14 @@ const TABLE_INPUT = {
   ],
 };
 
+const METRIC_INPUT = {
+  label: "Net revenue retention",
+  value: 118,
+  unit: "%",
+  delta: 6,
+  caption: "Up from 112% in the prior year.",
+};
+
 const SUMMARY_INPUT = {
   markdown:
     "## Summary\n\nRevenue grew **76%** across the year, driven by stronger expansion in EMEA and a healthy retention curve in mid-market. Q4 closed at $7.4m, the year's high.",
@@ -52,6 +60,9 @@ export class StubAdapter implements ModelAdapter {
 
     await sleep(200);
     yield { type: "tool-use", name: "table", input: TABLE_INPUT };
+
+    await sleep(200);
+    yield { type: "tool-use", name: "metric", input: METRIC_INPUT };
 
     await sleep(200);
     yield { type: "tool-use", name: "text", input: SUMMARY_INPUT };

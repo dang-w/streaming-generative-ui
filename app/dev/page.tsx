@@ -54,6 +54,17 @@ const fixtures: Array<{ label: string; kind: string; props: unknown }> = [
     },
   },
   {
+    label: "metric artifact",
+    kind: "metric",
+    props: {
+      label: "Net revenue retention",
+      value: 118,
+      unit: "%",
+      delta: 6,
+      caption: "Up from 112% in the prior year.",
+    },
+  },
+  {
     label: "invalid: chart with malformed data",
     kind: "chart",
     props: {
