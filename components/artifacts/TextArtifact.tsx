@@ -7,7 +7,7 @@ export type TextProps = z.infer<typeof textSchema>;
 
 export function TextArtifact({ markdown }: TextProps) {
   return (
-    <article className="prose prose-sm prose-zinc max-w-none rounded-lg border border-zinc-200 bg-white p-4 dark:prose-invert dark:border-zinc-800 dark:bg-zinc-950">
+    <article className="prose prose-sm max-w-[66ch] text-ink-1 prose-headings:text-ink-1 prose-strong:text-ink-1 prose-a:text-orange">
       <ReactMarkdown>{markdown}</ReactMarkdown>
     </article>
   );

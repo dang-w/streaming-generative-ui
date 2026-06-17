@@ -4,41 +4,48 @@ import type { tableSchema } from "@/lib/schemas";
 
 export type TableProps = z.infer<typeof tableSchema>;
 
-export function TableArtifact({ title, columns, rows }: TableProps) {
+function isNumeric(v: string | number | null) {
+  return typeof v === "number";
+}
+
+export function TableArtifact({ columns, rows }: TableProps) {
   return (
-    <figure className="overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-      {title && (
-        <figcaption className="border-b border-zinc-200 px-4 py-3 text-sm font-medium text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
-          {title}
-        </figcaption>
-      )}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
-            <tr>
-              {columns.map((c) => (
-                <th key={c} className="px-4 py-2 font-medium">
-                  {c}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {rows.map((row, i) => (
-              <tr key={i}>
-                {columns.map((_, j) => {
-                  const cell = row[j];
-                  return (
-                    <td key={j} className="px-4 py-2 text-zinc-800 dark:text-zinc-200">
-                      {cell === null || cell === undefined ? "—" : String(cell)}
-                    </td>
-                  );
-                })}
-              </tr>
+    <div className="border-[0.5px] border-ink-3 bg-paper px-[18px] pb-3.5 pt-4">
+      <table className="w-full border-collapse text-[11px]">
+        <thead>
+          <tr>
+            {columns.map((c, j) => (
+              <th
+                key={c}
+                className={`border-b-[0.5px] border-ink-3 px-2.5 py-2 text-[8.5px] uppercase tracking-[0.12em] text-ink-3 ${
+                  rows.some((r) => isNumeric(r[j])) ? "text-right" : "text-left"
+                }`}
+              >
+                {c}
+              </th>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </figure>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i} data-role="row">
+              {columns.map((_, j) => {
+                const cell = row[j];
+                return (
+                  <td
+                    key={j}
+                    className={`border-b-[0.5px] border-ink-4 px-2.5 py-2 text-ink-1 ${
+                      isNumeric(cell) ? "text-right tabular-nums" : "text-left"
+                    }`}
+                  >
+                    {cell === null || cell === undefined ? "—" : String(cell)}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
