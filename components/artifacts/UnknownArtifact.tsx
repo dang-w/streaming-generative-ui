@@ -1,14 +1,11 @@
 export function UnknownArtifact({ kind }: { kind: string }) {
   return (
-    <aside
-      role="status"
-      className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm dark:border-amber-800 dark:bg-amber-950"
-    >
-      <p className="font-medium text-amber-900 dark:text-amber-200">
-        Unknown artifact: <code className="font-mono">{kind}</code>
+    <aside role="status" className="border-l-2 border-amber bg-paper-zone px-4 py-3">
+      <p className="text-[9px] uppercase tracking-[0.16em] text-amber">
+        Off-spec — unknown kind <span className="text-ink-1">{kind}</span>
       </p>
-      <p className="mt-1 text-amber-800 dark:text-amber-300">
-        The model emitted an artifact type that isn&apos;t in the registry.
+      <p className="mt-1 text-[10px] text-ink-2">
+        Not in the registry; no entry resolved. Rendered as a fallback, not thrown.
       </p>
     </aside>
   );
