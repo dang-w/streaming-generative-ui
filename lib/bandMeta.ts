@@ -1,4 +1,5 @@
 import type { ArtifactKind } from "@/lib/registry";
+import type { StreamStatus, TimelineItem } from "@/hooks/useArtifactStream";
 
 /** The real Zod export name for each kind — the x-ray cross-reference anchor. */
 export const SCHEMA_NAME: Record<ArtifactKind, string> = {
@@ -7,3 +8,27 @@ export const SCHEMA_NAME: Record<ArtifactKind, string> = {
   metric: "metricSchema",
   text: "textSchema",
 };
+
+/** Which timeline item is currently streaming (the last one, while live). */
+export function streamingItemId(
+  items: TimelineItem[],
+  status: StreamStatus,
+): string | null {
+  if (status !== "streaming" || items.length === 0) return null;
+  return items[items.length - 1].id;
+}
+
+const KIND_FALLBACK: Record<string, string> = {
+  chart: "Chart",
+  table: "Table",
+  metric: "Headline Metric",
+  text: "Notes",
+};
+
+/** The band caption: the artifact's own title if it has one, else a kind label. */
+export function bandCaption(item: TimelineItem): string {
+  if (item.type === "text") return "Notes";
+  const props = item.props as { title?: unknown };
+  if (typeof props?.title === "string" && props.title.trim()) return props.title;
+  return KIND_FALLBACK[item.kind] ?? item.kind;
+}
