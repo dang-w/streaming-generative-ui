@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ArtifactBand } from "@/components/plate/ArtifactBand";
 import { Masthead } from "@/components/plate/Masthead";
@@ -9,7 +9,7 @@ import { Readout } from "@/components/plate/Readout";
 import { RegistryStrip } from "@/components/plate/RegistryStrip";
 import { ZoneTag } from "@/components/plate/ZoneTag";
 import { useArtifactStream } from "@/hooks/useArtifactStream";
-import { bandCaption, streamingItemId } from "@/lib/bandMeta";
+import { bandCaption, groupTimeline, streamingItemId } from "@/lib/bandMeta";
 import { renderArtifact } from "@/lib/renderArtifact";
 
 const EXAMPLE_PROMPT =
@@ -21,6 +21,23 @@ export default function Home() {
 
   const artifactCount = items.filter((it) => it.type === "artifact").length;
   const activeId = streamingItemId(items, status);
+
+  // Coalesce consecutive metric artifacts so headline metrics share one grid band.
+  const units = groupTimeline(items);
+  const activeUnit = units.find((u) =>
+    u.kind === "item" ? u.id === activeId : u.items.some((m) => m.id === activeId),
+  );
+  const activeUnitId = activeUnit?.id ?? null;
+
+  // Keep the actively-streaming band roughly centred as the run progresses.
+  // Streaming-only, and honours reduced-motion (no yank after completion).
+  useEffect(() => {
+    if (status !== "streaming" || !activeUnitId) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    document
+      .getElementById(`band-${activeUnitId}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [activeUnitId, status]);
 
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -78,23 +95,46 @@ export default function Home() {
           </aside>
         )}
 
-        {items.map((item) => (
-          <ArtifactBand
-            key={item.id}
-            caption={bandCaption(item)}
-            kind={item.type === "text" ? "text" : (item.kind as "chart" | "table" | "metric" | "text")}
-            streaming={item.id === activeId}
-          >
-            {item.type === "text" ? (
-              <article className="prose prose-sm max-w-[66ch] text-ink-1">
-                {item.text}
-                {item.id === activeId && <span className="stream-cursor" />}
-              </article>
-            ) : (
-              renderArtifact(item.kind, item.props)
-            )}
-          </ArtifactBand>
-        ))}
+        {units.map((unit) =>
+          unit.kind === "metricGroup" ? (
+            <div id={`band-${unit.id}`} key={unit.id}>
+              <ArtifactBand
+                caption="Headline Metrics"
+                kind="metric"
+                streaming={unit.items.some((m) => m.id === activeId)}
+              >
+                <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-3">
+                  {unit.items.map((m) =>
+                    m.type === "artifact" ? (
+                      <div key={m.id}>{renderArtifact(m.kind, m.props)}</div>
+                    ) : null,
+                  )}
+                </div>
+              </ArtifactBand>
+            </div>
+          ) : (
+            <div id={`band-${unit.id}`} key={unit.id}>
+              <ArtifactBand
+                caption={bandCaption(unit.item)}
+                kind={
+                  unit.item.type === "text"
+                    ? "text"
+                    : (unit.item.kind as "chart" | "table" | "metric" | "text")
+                }
+                streaming={unit.item.id === activeId}
+              >
+                {unit.item.type === "text" ? (
+                  <article className="prose prose-sm max-w-[80ch] text-ink-1">
+                    {unit.item.text}
+                    {unit.item.id === activeId && <span className="stream-cursor" />}
+                  </article>
+                ) : (
+                  renderArtifact(unit.item.kind, unit.item.props)
+                )}
+              </ArtifactBand>
+            </div>
+          ),
+        )}
       </div>
     </PlateShell>
   );

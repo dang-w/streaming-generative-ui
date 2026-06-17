@@ -32,3 +32,30 @@ export function bandCaption(item: TimelineItem): string {
   if (typeof props?.title === "string" && props.title.trim()) return props.title;
   return KIND_FALLBACK[item.kind] ?? item.kind;
 }
+
+/**
+ * A render unit: either a single timeline item, or a run of consecutive `metric`
+ * artifacts coalesced into one group (so headline metrics lay out side-by-side in
+ * a grid band rather than stacking full-width). `id` is the unit's stable key
+ * (the first member's id for a group).
+ */
+export type RenderUnit =
+  | { kind: "item"; id: string; item: TimelineItem }
+  | { kind: "metricGroup"; id: string; items: TimelineItem[] };
+
+/** Coalesce consecutive `metric` artifacts into groups; everything else stays single. */
+export function groupTimeline(items: TimelineItem[]): RenderUnit[] {
+  const units: RenderUnit[] = [];
+  for (const item of items) {
+    const isMetric = item.type === "artifact" && item.kind === "metric";
+    const last = units[units.length - 1];
+    if (isMetric && last?.kind === "metricGroup") {
+      last.items.push(item);
+    } else if (isMetric) {
+      units.push({ kind: "metricGroup", id: item.id, items: [item] });
+    } else {
+      units.push({ kind: "item", id: item.id, item });
+    }
+  }
+  return units;
+}
