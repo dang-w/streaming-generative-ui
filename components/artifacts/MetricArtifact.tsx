@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { z } from "zod";
 
 import type { metricSchema } from "@/lib/schemas";
@@ -5,6 +8,12 @@ import type { metricSchema } from "@/lib/schemas";
 export type MetricProps = z.infer<typeof metricSchema>;
 
 export function MetricArtifact({ label, value, unit, delta, caption }: MetricProps) {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   const arrow = delta === undefined ? "" : delta > 0 ? "▲" : delta < 0 ? "▼" : "—";
   const deltaTone =
     delta === undefined || delta === 0
@@ -14,7 +23,7 @@ export function MetricArtifact({ label, value, unit, delta, caption }: MetricPro
         : "text-red";
 
   return (
-    <figure className="border-[0.5px] border-ink-3 bg-paper px-[15px] py-3.5">
+    <figure className={`stagger${shown ? " in" : ""} border-[0.5px] border-ink-3 bg-paper px-[15px] py-3.5`}>
       <figcaption className="text-[9px] uppercase tracking-[0.12em] text-ink-3">
         {label}
       </figcaption>

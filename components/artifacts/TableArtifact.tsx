@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { z } from "zod";
 
 import type { tableSchema } from "@/lib/schemas";
@@ -9,6 +12,12 @@ function isNumeric(v: string | number | null) {
 }
 
 export function TableArtifact({ columns, rows }: TableProps) {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   return (
     <div className="border-[0.5px] border-ink-3 bg-paper px-[18px] pb-3.5 pt-4">
       <table className="w-full border-collapse text-[11px]">
@@ -28,7 +37,12 @@ export function TableArtifact({ columns, rows }: TableProps) {
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} data-role="row">
+            <tr
+              key={i}
+              data-role="row"
+              className={`stagger${shown ? " in" : ""}`}
+              style={{ transitionDelay: `${i * 90}ms` }}
+            >
               {columns.map((_, j) => {
                 const cell = row[j];
                 return (
