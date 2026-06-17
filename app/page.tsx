@@ -13,7 +13,7 @@ import { bandCaption, groupTimeline, streamingItemId } from "@/lib/bandMeta";
 import { renderArtifact } from "@/lib/renderArtifact";
 
 const EXAMPLE_PROMPT =
-  "Show me a quarterly performance snapshot: a sales trend chart, a few headline metrics, and a table of top accounts.";
+  "Show me a quarterly performance snapshot: a sales trend chart, a few headline metrics, a table of top accounts, and a final, overall text summary.";
 
 export default function Home() {
   const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
