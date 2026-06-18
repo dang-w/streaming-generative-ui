@@ -43,3 +43,6 @@ next-env.d.ts
 
 # initial spec
 /docs/spec.md
+
+# superpowers plans/notes — kept local, not committed (planning docs live outside the repo)
+/docs/superpowers/
