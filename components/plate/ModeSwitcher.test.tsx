@@ -26,12 +26,12 @@ describe("ModeSwitcher", () => {
     expect(onChange).toHaveBeenCalledWith("xray");
   });
 
-  it("disables REGISTRY (Phase C) and does not fire onChange for it", () => {
+  it("fires onChange for REGISTRY (now enabled in Phase C)", () => {
     const onChange = vi.fn();
     render(<ModeSwitcher mode="live" onChange={onChange} />);
     const registry = screen.getByRole("button", { name: /REGISTRY/ });
-    expect(registry).toBeDisabled();
+    expect(registry).not.toBeDisabled();
     fireEvent.click(registry);
-    expect(onChange).not.toHaveBeenCalled();
+    expect(onChange).toHaveBeenCalledWith("registry");
   });
 });

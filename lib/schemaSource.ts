@@ -1,16 +1,15 @@
-import schemasSource from "@/lib/schemas.ts?raw";
+import { z } from "zod";
+
+import { registry, type ArtifactKind } from "@/lib/registry";
 
 /**
- * The real Zod source for an exported schema, sliced from lib/schemas.ts via a
- * `?raw` import — so the displayed schema is the literal file content and cannot
- * drift from what actually validates. Returns "" if the export isn't found.
+ * The kind's schema rendered as JSON Schema, derived live from the REAL Zod
+ * schema object via `z.toJSONSchema` — zero drift, and exactly what the model
+ * receives as the tool `input_schema` (see lib/tools.ts). We derive rather than
+ * read the `.ts` source because Turbopack can't `?raw`-import a module file
+ * (it parses it and finds no default export), and a hand-copied string would
+ * drift from what actually validates.
  */
-export function schemaSource(exportName: string): string {
-  const marker = `export const ${exportName} =`;
-  const start = schemasSource.indexOf(marker);
-  if (start === -1) return "";
-  const rest = schemasSource.slice(start);
-  const next = rest.indexOf("\nexport const ", 1);
-  const block = next === -1 ? rest : rest.slice(0, next);
-  return block.replace(/^export const /, "").trimEnd();
+export function schemaJson(kind: ArtifactKind): string {
+  return JSON.stringify(z.toJSONSchema(registry[kind].schema), null, 2);
 }

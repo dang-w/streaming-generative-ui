@@ -1,22 +1,21 @@
 import { describe, expect, it } from "vitest";
 
-import { schemaSource } from "./schemaSource";
+import { schemaJson } from "./schemaSource";
 
-describe("schemaSource", () => {
-  it("returns the real Zod source for chartSchema", () => {
-    const src = schemaSource("chartSchema");
-    expect(src).toContain("z.object(");
-    expect(src).toContain('variant: z.enum(["bar", "line"])');
-    expect(src.startsWith("chartSchema =")).toBe(true);
+describe("schemaJson", () => {
+  it("derives JSON Schema from the real chart schema (enum values surfaced)", () => {
+    const s = schemaJson("chart");
+    expect(s).toContain("variant");
+    expect(s).toContain('"bar"');
+    expect(s).toContain('"line"');
   });
 
-  it("slices only the requested export (no bleed into the next)", () => {
-    const src = schemaSource("textSchema");
-    expect(src).toContain("markdown");
-    expect(src).not.toContain("metricSchema"); // must stop before the next export
+  it("derives a distinct schema per kind", () => {
+    expect(schemaJson("text")).toContain("markdown");
+    expect(schemaJson("text")).not.toContain("variant");
   });
 
-  it("returns empty string for an unknown export", () => {
-    expect(schemaSource("nopeSchema")).toBe("");
+  it("is valid JSON (parses back to an object)", () => {
+    expect(() => JSON.parse(schemaJson("metric"))).not.toThrow();
   });
 });

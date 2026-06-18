@@ -59,3 +59,12 @@ export function groupTimeline(items: TimelineItem[]): RenderUnit[] {
   }
   return units;
 }
+
+/** Hatch-pattern swatch CSS per kind — the registry legend's visual key. */
+export const HATCH: Record<ArtifactKind, string> = {
+  chart:
+    "repeating-linear-gradient(45deg,#555 0 0.6px,transparent 0.6px 3px),repeating-linear-gradient(-45deg,#555 0 0.6px,transparent 0.6px 3px)",
+  metric: "repeating-linear-gradient(0deg,#555 0 0.6px,transparent 0.6px 4px)",
+  table: "repeating-linear-gradient(45deg,#555 0 0.6px,transparent 0.6px 8px)",
+  text: "repeating-linear-gradient(45deg,#999 0 0.6px,transparent 0.6px 5px,#999 5px 5.6px,transparent 5.6px 8px)",
+};

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RegistryExplorer } from "./RegistryExplorer";
@@ -33,10 +33,13 @@ describe("RegistryExplorer", () => {
     );
   });
 
-  it("shows the real Zod schema source for the selected kind", () => {
+  it("shows the derived JSON schema (from the real Zod schema) for the selected kind", () => {
     render(<RegistryExplorer kind="chart" onSelect={() => {}} />);
     const schema = screen.getByTestId("registry-schema");
-    expect(within(schema).getByText(/z\.enum\(\["bar", "line"\]\)/)).toBeInTheDocument();
+    // z.toJSONSchema surfaces the enum values + field names of the real schema.
+    expect(schema.textContent).toContain("variant");
+    expect(schema.textContent).toContain('"bar"');
+    expect(schema.textContent).toContain('"line"');
   });
 
   it("renders a live example for the selected kind", () => {

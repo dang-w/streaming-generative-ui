@@ -9,12 +9,13 @@ import { RegistryStrip } from "@/components/plate/RegistryStrip";
 import { ZoneTag } from "@/components/plate/ZoneTag";
 import { useArtifactStream } from "@/hooks/useArtifactStream";
 import { bandCaption, groupTimeline, streamingItemId } from "@/lib/bandMeta";
+import type { ArtifactKind } from "@/lib/registry";
 import { renderArtifact } from "@/lib/renderArtifact";
 
 const EXAMPLE_PROMPT =
   "Show me a quarterly performance snapshot: a sales trend chart, a few headline metrics, a table of top accounts, and a final, overall text summary.";
 
-export function LiveView() {
+export function LiveView({ onKindSelect }: { onKindSelect?: (k: ArtifactKind) => void }) {
   const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
   const { items, status, error, send, reset } = useArtifactStream();
 
@@ -54,7 +55,7 @@ export function LiveView() {
           <Masthead onReset={reset} showReset={items.length > 0} />
           <Readout status={status} artifactCount={artifactCount} />
         </div>
-        <RegistryStrip />
+        <RegistryStrip onSelect={onKindSelect} />
       </div>
 
       {/* ===== ZONE 2 — STREAM ===== */}

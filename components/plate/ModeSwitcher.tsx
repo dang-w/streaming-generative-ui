@@ -6,8 +6,7 @@ const LABEL: Record<Mode, string> = {
   registry: "REGISTRY",
 };
 
-// REGISTRY is the Phase C explorer — present but disabled for now.
-const DISABLED: Record<Mode, boolean> = { live: false, xray: false, registry: true };
+const DISABLED: Record<Mode, boolean> = { live: false, xray: false, registry: false };
 
 export function ModeSwitcher({
   mode,

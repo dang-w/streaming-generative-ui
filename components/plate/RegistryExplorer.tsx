@@ -1,19 +1,10 @@
 "use client";
 
-import { SCHEMA_NAME } from "@/lib/bandMeta";
+import { HATCH, SCHEMA_NAME } from "@/lib/bandMeta";
 import { EXAMPLES } from "@/lib/exampleArtifacts";
 import { registry, type ArtifactKind } from "@/lib/registry";
 import { renderArtifact } from "@/lib/renderArtifact";
-import { schemaSource } from "@/lib/schemaSource";
-
-// Hatch swatches per kind (mirrors the LIVE RegistryStrip legend).
-const HATCH: Record<ArtifactKind, string> = {
-  chart:
-    "repeating-linear-gradient(45deg,#555 0 0.6px,transparent 0.6px 3px),repeating-linear-gradient(-45deg,#555 0 0.6px,transparent 0.6px 3px)",
-  metric: "repeating-linear-gradient(0deg,#555 0 0.6px,transparent 0.6px 4px)",
-  table: "repeating-linear-gradient(45deg,#555 0 0.6px,transparent 0.6px 8px)",
-  text: "repeating-linear-gradient(45deg,#999 0 0.6px,transparent 0.6px 5px,#999 5px 5.6px,transparent 5.6px 8px)",
-};
+import { schemaJson } from "@/lib/schemaSource";
 
 const COMPONENT_NAME: Record<ArtifactKind, string> = {
   chart: "ChartArtifact",
@@ -117,9 +108,13 @@ export function RegistryExplorer({
             </pre>
           </Panel>
 
-          <Panel label="Schema" refName="lib/schemas.ts" testId="registry-schema">
+          <Panel
+            label="Schema · JSON (what the model receives)"
+            refName={`z.toJSONSchema(${schemaName})`}
+            testId="registry-schema"
+          >
             <pre className="overflow-x-auto whitespace-pre font-mono text-[11px] leading-relaxed text-ink-1">
-              {schemaSource(schemaName)}
+              {schemaJson(kind)}
             </pre>
           </Panel>
         </div>
