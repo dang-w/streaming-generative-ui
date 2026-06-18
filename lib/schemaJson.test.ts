@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { schemaJson } from "./schemaSource";
+import { schemaJson } from "./schemaJson";
 
 describe("schemaJson", () => {
   it("derives JSON Schema from the real chart schema (enum values surfaced)", () => {

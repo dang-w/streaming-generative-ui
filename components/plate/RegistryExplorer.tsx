@@ -4,7 +4,7 @@ import { HATCH, SCHEMA_NAME } from "@/lib/bandMeta";
 import { EXAMPLES } from "@/lib/exampleArtifacts";
 import { registry, type ArtifactKind } from "@/lib/registry";
 import { renderArtifact } from "@/lib/renderArtifact";
-import { schemaJson } from "@/lib/schemaSource";
+import { schemaJson } from "@/lib/schemaJson";
 
 const COMPONENT_NAME: Record<ArtifactKind, string> = {
   chart: "ChartArtifact",
