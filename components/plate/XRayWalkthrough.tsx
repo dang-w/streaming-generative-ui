@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ChartArtifact } from "@/components/artifacts/ChartArtifact";
 import { runPipeline } from "@/components/plate/XRayWalkthrough.pipeline";
@@ -10,6 +10,25 @@ import { XRAY_STEPS } from "@/lib/xraySteps";
 
 export function XRayWalkthrough() {
   const [step, setStep] = useState(0); // 0..3
+  const [replaying, setReplaying] = useState(false);
+
+  // Auto-replay: advance one step per slow tick; stop at the end. This is the
+  // ONLY timed pacing in X-RAY (the labelled "slowed render"); manual nav is real-speed.
+  useEffect(() => {
+    if (!replaying || step >= XRAY_STEPS.length - 1) return;
+    const next = step + 1;
+    const id = setTimeout(() => {
+      setStep(next);
+      if (next >= XRAY_STEPS.length - 1) setReplaying(false);
+    }, 2200);
+    return () => clearTimeout(id);
+  }, [replaying, step]);
+
+  const startReplay = () => {
+    setStep(0);
+    setReplaying(true);
+  };
+
   const current = XRAY_STEPS[step];
   const { entry, valid, exemplar } = runPipeline();
 
@@ -159,19 +178,29 @@ export function XRayWalkthrough() {
       <div className="mt-4 flex gap-6 text-[10px] tracking-[0.1em] text-ink-2">
         <button
           type="button"
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
-          disabled={step === 0}
+          onClick={() => {
+            setReplaying(false);
+            setStep((s) => Math.max(0, s - 1));
+          }}
+          disabled={step === 0 && !replaying}
           className="disabled:opacity-30"
         >
           <span className="text-ink-3">◀</span> <b className="text-ink-1">PREV</b>
         </button>
         <button
           type="button"
-          onClick={() => setStep((s) => Math.min(XRAY_STEPS.length - 1, s + 1))}
-          disabled={step === XRAY_STEPS.length - 1}
+          onClick={() => {
+            setReplaying(false);
+            setStep((s) => Math.min(XRAY_STEPS.length - 1, s + 1));
+          }}
+          disabled={step === XRAY_STEPS.length - 1 && !replaying}
           className="disabled:opacity-30"
         >
           <span className="text-ink-3">▶</span> <b className="text-ink-1">NEXT</b>
+        </button>
+        <button type="button" onClick={startReplay} className="hover:text-orange">
+          <span className="text-ink-3">⟲</span> <b className="text-ink-1">AUTO-REPLAY</b>{" "}
+          <span className="text-ink-3">(slow)</span>
         </button>
       </div>
     </div>
