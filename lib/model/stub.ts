@@ -3,7 +3,7 @@ import type { ModelAdapter, ModelStreamArgs, NormalisedEvent } from "./adapter";
 export const STUB_INTRO =
   "Here's a quarterly performance snapshot built from your request. I'll start with a revenue chart so the shape of the year is clear, then surface the headline metric that summarises it, and finish with the table of top accounts by ARR. Each block below is a separate typed artifact, streamed and rendered as it arrives.";
 
-const CHART_INPUT = {
+export const STUB_CHART_INPUT = {
   variant: "bar" as const,
   title: "Quarterly Revenue (USD m)",
   xLabel: "Quarter",
@@ -56,7 +56,7 @@ export class StubAdapter implements ModelAdapter {
     }
 
     await sleep(150);
-    yield { type: "tool-use", name: "chart", input: CHART_INPUT };
+    yield { type: "tool-use", name: "chart", input: STUB_CHART_INPUT };
 
     await sleep(200);
     yield { type: "tool-use", name: "table", input: TABLE_INPUT };
