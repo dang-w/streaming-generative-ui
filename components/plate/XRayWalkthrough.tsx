@@ -70,8 +70,10 @@ export function XRayWalkthrough() {
           />
         </div>
 
-        {/* focus panel — content per step */}
-        <div className="border-[0.5px] border-ink-3 bg-paper-zone p-4">
+        {/* focus panel — content per step. Fixed height + internal scroll so the
+            tall tool-call JSON doesn't grow the row and shove the rail/controls
+            down on step 1 — the visual area stays a constant height every step. */}
+        <div className="overflow-auto border-[0.5px] border-ink-3 bg-paper-zone p-4 lg:h-[300px]">
           <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-orange">
             <span className="mr-2">{["①", "②", "③", "④"][step]}</span>
             {current.title}
@@ -81,7 +83,7 @@ export function XRayWalkthrough() {
           </pre>
 
           {current.id === "tool-call" && (
-            <pre className="mt-3 max-h-64 overflow-auto border-[0.5px] border-ink-4 bg-paper p-2.5 font-mono text-[10px] leading-relaxed text-ink-2">
+            <pre className="mt-3 border-[0.5px] border-ink-4 bg-paper p-2.5 font-mono text-[10px] leading-relaxed text-ink-2">
               {JSON.stringify(exemplar, null, 2)}
             </pre>
           )}
@@ -169,39 +171,45 @@ export function XRayWalkthrough() {
         })}
       </div>
 
-      {/* directive */}
-      <p data-testid="xray-directive" aria-live="polite" className="mt-3.5 max-w-[70ch] text-[12.5px] leading-relaxed text-ink-1">
-        {current.directive}
-      </p>
+      {/* directive (left) + controls (right) — controls live in the empty right
+          zone so they're prominent and sit at a stable position every step. */}
+      <div className="mt-3.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <p
+          data-testid="xray-directive"
+          aria-live="polite"
+          className="max-w-[70ch] text-[12.5px] leading-relaxed text-ink-1"
+        >
+          {current.directive}
+        </p>
 
-      {/* controls */}
-      <div className="mt-4 flex gap-6 text-[10px] tracking-[0.1em] text-ink-2">
-        <button
-          type="button"
-          onClick={() => {
-            setReplaying(false);
-            setStep((s) => Math.max(0, s - 1));
-          }}
-          disabled={step === 0 && !replaying}
-          className="disabled:opacity-30"
-        >
-          <span className="text-ink-3">◀</span> <b className="text-ink-1">PREV</b>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setReplaying(false);
-            setStep((s) => Math.min(XRAY_STEPS.length - 1, s + 1));
-          }}
-          disabled={step === XRAY_STEPS.length - 1 && !replaying}
-          className="disabled:opacity-30"
-        >
-          <span className="text-ink-3">▶</span> <b className="text-ink-1">NEXT</b>
-        </button>
-        <button type="button" onClick={startReplay} className="hover:text-orange">
-          <span className="text-ink-3">⟲</span> <b className="text-ink-1">AUTO-REPLAY</b>{" "}
-          <span className="text-ink-3">(slow)</span>
-        </button>
+        <div className="flex shrink-0 mr-12 items-center gap-5 border-orange px-6 py-4 text-[11px] tracking-[0.1em] text-ink-2 sm:border">
+          <button
+            type="button"
+            onClick={() => {
+              setReplaying(false);
+              setStep((s) => Math.max(0, s - 1));
+            }}
+            disabled={step === 0 && !replaying}
+            className="hover:text-ink-1 disabled:opacity-30 disabled:hover:text-ink-2"
+          >
+            <span className="text-ink-3">◀</span> <b className="text-ink-1">PREV</b>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setReplaying(false);
+              setStep((s) => Math.min(XRAY_STEPS.length - 1, s + 1));
+            }}
+            disabled={step === XRAY_STEPS.length - 1 && !replaying}
+            className="hover:text-ink-1 disabled:opacity-30 disabled:hover:text-ink-2"
+          >
+            <span className="text-ink-3">▶</span> <b className="text-ink-1">NEXT</b>
+          </button>
+          <button type="button" onClick={startReplay} className="hover:text-orange">
+            <span className="text-ink-3">⟲</span> <b className="text-ink-1">AUTO-REPLAY</b>{" "}
+            <span className="text-ink-3">(slow)</span>
+          </button>
+        </div>
       </div>
     </div>
   );
