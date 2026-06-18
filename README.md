@@ -96,9 +96,9 @@ Eight decisions worth defending out loud.
 
 ## In scope / out of scope
 
-**In:** three artifact kinds (chart, table, text); the registry + derived types; Zod validation; tool derivation; Anthropic streaming + tool use; SSE route + client consumption; progressive render; fallbacks; second swappable adapter (stub); this README.
+**In:** four artifact kinds (chart, table, metric, text); the registry + derived types; Zod validation; tool derivation; streamed model tool-use via the Vercel AI SDK Core; SSE route + client consumption; progressive render; fallbacks; second swappable adapter (stub); a Vitest + RTL unit suite; this README.
 
-**Out, deliberately:** multi-agent orchestration; persistence/DB; auth; eval harness; >3 artifact types; the `map` artifact (would need a third-party API key — scope-and-cost risk for a PoC); multi-turn chat; production-grade error handling beyond the two fallbacks; a test suite (one smoke check per phase — `/dev`, `/api/dev/smoke`, the curl path on `/api/generate`); deployment.
+**Out, deliberately:** multi-agent orchestration; persistence/DB; auth; eval harness; the `map` artifact (would need a third-party API key — scope-and-cost risk for a PoC); multi-turn chat; production-grade error handling beyond the two fallbacks; deployment.
 
 Calling out the out-of-scope list explicitly is itself a scope-judgement signal — every senior submission for a four-day window has a thing it isn't.
 
@@ -149,7 +149,7 @@ lib/
   tools.ts                   # Tool defs derived from registry; system prompt
   model/
     adapter.ts               # ModelAdapter interface + NormalisedEvent types
-    anthropic.ts             # Real adapter — wraps @anthropic-ai/sdk streaming
+    anthropic.ts             # Real adapter — wraps the Vercel AI SDK Core (streamText)
     stub.ts                  # Canned-events adapter for offline demos
 docs/spec.md                 # The original planning spec (gitignored — private)
 PLAN.md                      # The session execution tracker
@@ -160,8 +160,8 @@ PLAN.md                      # The session execution tracker
 ## Stack
 
 - Next.js 16 (App Router) + TypeScript `strict: true` + Turbopack
-- `@anthropic-ai/sdk` for streaming + tool use
+- Vercel AI SDK Core (`ai` + `@ai-sdk/anthropic`) for streaming + tool use — provider-swappable in one line
 - Zod 4 (uses native `z.toJSONSchema`, no third-party converter)
 - Tailwind v4 + `@tailwindcss/typography`
 - Custom inline SVG chart (no chart library), react-markdown (text artifact)
-- Dev model: `claude-haiku-4-5`. Demo model: `claude-sonnet-4-6`. Both configurable via `ANTHROPIC_MODEL`.
+- Model: `claude-haiku-4-5` by default, configurable via `ANTHROPIC_MODEL`.
