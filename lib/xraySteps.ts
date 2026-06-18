@@ -40,6 +40,6 @@ export const XRAY_STEPS: XRayStep[] = [
     title: "RENDER",
     code: "renderArtifact() → <ChartArtifact/>",
     directive:
-      "renderArtifact passes the validated props straight into the typed component. What you watched stream in LIVE is exactly this — the same path, slowed down.",
+      "renderArtifact validates the props and renders them into the typed component — the lookup and validation above happen inside this one call. What you watched stream in LIVE is exactly this path, slowed down.",
   },
 ];

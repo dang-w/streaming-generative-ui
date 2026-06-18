@@ -101,7 +101,7 @@ export function XRayWalkthrough() {
                     data-testid={hot ? "xray-registry-chart" : undefined}
                     data-hot={hot ? "true" : "false"}
                     className={`flex items-center justify-between px-3 py-1.5 text-[9.5px] ${
-                      hot ? "bg-orange/10 ring-[0.8px] ring-orange" : "opacity-50"
+                      hot ? "bg-orange/10 ring-[0.8px] ring-orange" : "opacity-[0.28]"
                     }`}
                   >
                     <span className={hot ? "font-bold text-ink-1" : "text-ink-1"}>
