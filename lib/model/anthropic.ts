@@ -3,7 +3,7 @@ import { jsonSchema, streamText, tool, type ToolSet } from "ai";
 
 import type { ModelAdapter, ModelStreamArgs, NormalisedEvent } from "./adapter";
 
-const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5";
+export const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5";
 const MAX_TOKENS = 2048;
 
 /**

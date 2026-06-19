@@ -59,10 +59,10 @@ export class StubAdapter implements ModelAdapter {
     yield { type: "tool-use", name: "chart", input: STUB_CHART_INPUT };
 
     await sleep(200);
-    yield { type: "tool-use", name: "table", input: TABLE_INPUT };
+    yield { type: "tool-use", name: "metric", input: METRIC_INPUT };
 
     await sleep(200);
-    yield { type: "tool-use", name: "metric", input: METRIC_INPUT };
+    yield { type: "tool-use", name: "table", input: TABLE_INPUT };
 
     await sleep(200);
     yield { type: "tool-use", name: "text", input: SUMMARY_INPUT };

@@ -109,7 +109,7 @@ export function RegistryExplorer({
           </Panel>
 
           <Panel
-            label="Schema · JSON (what the model receives)"
+            label="Schema · the tool input_schema"
             refName={`z.toJSONSchema(${schemaName})`}
             testId="registry-schema"
           >

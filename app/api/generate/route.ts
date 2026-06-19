@@ -1,15 +1,12 @@
-import { AnthropicAdapter } from "@/lib/model/anthropic";
+import { AnthropicAdapter, DEFAULT_MODEL } from "@/lib/model/anthropic";
 import { StubAdapter } from "@/lib/model/stub";
 import type { ModelAdapter } from "@/lib/model/adapter";
 import { systemPrompt, tools } from "@/lib/tools";
+import type { WireEvent } from "@/lib/wire";
 
 export const runtime = "nodejs";
 
-type WireEvent =
-  | { type: "text-delta"; text: string }
-  | { type: "artifact"; kind: string; props: unknown }
-  | { type: "error"; message: string }
-  | { type: "done" };
+const MAX_PROMPT_CHARS = 4000;
 
 function sseLine(event: WireEvent) {
   return `data: ${JSON.stringify(event)}\n\n`;
@@ -37,10 +34,20 @@ export async function POST(req: Request) {
     if (typeof body.prompt !== "string" || body.prompt.trim().length === 0) {
       return Response.json({ error: "prompt must be a non-empty string" }, { status: 400 });
     }
+    // Defense-in-depth: cap prompt size so a public endpoint can't be driven with
+    // arbitrarily large inputs (the public demo runs the stub adapter regardless).
+    if (body.prompt.length > MAX_PROMPT_CHARS) {
+      return Response.json(
+        { error: `prompt too long (max ${MAX_PROMPT_CHARS} characters)` },
+        { status: 413 },
+      );
+    }
     prompt = body.prompt;
   } catch {
     return Response.json({ error: "invalid JSON body" }, { status: 400 });
   }
+
+  const runModel = adapter.name === "stub" ? null : DEFAULT_MODEL;
 
   const encoder = new TextEncoder();
 
@@ -61,7 +68,7 @@ export async function POST(req: Request) {
               ),
             );
           } else if (event.type === "done") {
-            controller.enqueue(encoder.encode(sseLine({ type: "done" })));
+            controller.enqueue(encoder.encode(sseLine({ type: "done", adapter: adapter.name, model: runModel })));
           }
         }
       } catch (err) {

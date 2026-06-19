@@ -1,5 +1,4 @@
 import type { StreamStatus } from "@/hooks/useArtifactStream";
-import { DEFAULT_MODEL_LABEL } from "@/lib/tools";
 
 function Row({
   k,
@@ -33,17 +32,24 @@ function Row({
 export function Readout({
   status,
   artifactCount,
+  adapter,
+  model,
 }: {
   status: StreamStatus;
   artifactCount: number;
+  adapter: string | null;
+  model: string | null;
 }) {
   const stateLabel = status === "streaming" ? "STREAMING" : status.toUpperCase();
   const stateTone =
     status === "streaming" ? "active" : status === "done" ? "done" : undefined;
 
+  const modelLabel =
+    adapter === null ? "—" : adapter === "stub" ? "stub · canned" : (model ?? adapter);
+
   return (
     <div className="min-w-[300px] border-[0.5px] border-ink-3 px-3.5 py-2.5 text-[10px] leading-[1.95] text-ink-2">
-      <Row k="MODEL">{DEFAULT_MODEL_LABEL}</Row>
+      <Row k="MODEL">{modelLabel}</Row>
       <Row k="PATTERN" tone="amber">
         typed registry
       </Row>
@@ -51,7 +57,7 @@ export function Readout({
       <Row k="ARTIFACTS" testId="readout-artifacts">
         {artifactCount}
       </Row>
-      <Row k="BATCH">rAF / frame</Row>
+      <Row k="BATCH">rAF · text</Row>
       <Row k="STATE" testId="readout-state" tone={stateTone}>
         {stateLabel}
       </Row>

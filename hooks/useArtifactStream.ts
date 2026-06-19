@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createCoalescer } from "@/lib/frameScheduler";
+import type { WireEvent } from "@/lib/wire";
 
 export type TimelineItem =
   | { id: string; type: "text"; text: string }
@@ -10,16 +11,11 @@ export type TimelineItem =
 
 export type StreamStatus = "idle" | "streaming" | "done" | "error";
 
-type WireEvent =
-  | { type: "text-delta"; text: string }
-  | { type: "artifact"; kind: string; props: unknown }
-  | { type: "error"; message: string }
-  | { type: "done" };
-
 export function useArtifactStream() {
   const [items, setItems] = useState<TimelineItem[]>([]);
   const [status, setStatus] = useState<StreamStatus>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [runInfo, setRunInfo] = useState<{ adapter: string | null; model: string | null }>({ adapter: null, model: null });
   const abortRef = useRef<AbortController | null>(null);
 
   const send = useCallback(async (prompt: string) => {
@@ -30,6 +26,7 @@ export function useArtifactStream() {
     setItems([]);
     setError(null);
     setStatus("streaming");
+    setRunInfo({ adapter: null, model: null });
 
     // Current text-run (deltas accumulate into one item until an artifact closes
     // the run). Held in refs to avoid stale-closure reads inside the SSE loop.
@@ -119,6 +116,7 @@ export function useArtifactStream() {
             setStatus("error");
             return;
           } else if (event.type === "done") {
+            setRunInfo({ adapter: event.adapter ?? null, model: event.model ?? null });
             textBatch.flush();
             setStatus("done");
             return;
@@ -142,7 +140,10 @@ export function useArtifactStream() {
     setItems([]);
     setStatus("idle");
     setError(null);
+    setRunInfo({ adapter: null, model: null });
   }, []);
 
-  return { items, status, error, send, reset };
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  return { items, status, error, send, reset, runInfo };
 }

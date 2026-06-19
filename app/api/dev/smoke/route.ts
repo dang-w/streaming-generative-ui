@@ -1,4 +1,4 @@
-import { AnthropicAdapter } from "@/lib/model/anthropic";
+import { AnthropicAdapter, DEFAULT_MODEL } from "@/lib/model/anthropic";
 import { registry, type ArtifactKind } from "@/lib/registry";
 import { systemPrompt, tools } from "@/lib/tools";
 
@@ -13,6 +13,11 @@ type ToolResult = {
 };
 
 export async function GET() {
+  // Dev-only diagnostic — never exposed on a public deployment (it fires a real
+  // model call on a fixed prompt and echoes generated text + schema issues).
+  if (process.env.NODE_ENV === "production") {
+    return new Response("Not found", { status: 404 });
+  }
   if (!process.env.ANTHROPIC_API_KEY) {
     return Response.json(
       { ok: false, error: "ANTHROPIC_API_KEY not set in .env.local" },
@@ -69,7 +74,7 @@ export async function GET() {
 
   return Response.json({
     ok: allValid,
-    model: process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5",
+    model: DEFAULT_MODEL,
     adapter: adapter.name,
     text: textChunks.join(""),
     toolCallCount: toolResults.length,

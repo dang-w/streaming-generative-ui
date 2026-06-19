@@ -81,7 +81,7 @@ export function Chart({ variant, data, yLabel, animate = true }: ChartViewProps)
       )}
 
       {variant === "bar" ? (
-        <g>
+        <g className={`chart-point${drawn ? " draw" : ""}`}>
           {g.points.map((p, i) => {
             const w = 18;
             const isActive = i === g.activeIndex;

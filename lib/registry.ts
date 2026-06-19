@@ -25,7 +25,7 @@ function entry<S extends z.ZodType>(
 }
 
 export const registry = {
-  // ← adding a 4th artifact = one entry here
+  // ← adding another artifact = one entry here
   chart: entry(
     chartSchema,
     ChartArtifact,
@@ -45,10 +45,3 @@ export const registry = {
 };
 
 export type ArtifactKind = keyof typeof registry;
-
-export type Artifact = {
-  [K in ArtifactKind]: {
-    kind: K;
-    props: z.infer<(typeof registry)[K]["schema"]>;
-  };
-}[ArtifactKind];

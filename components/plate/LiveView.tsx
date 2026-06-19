@@ -17,7 +17,7 @@ const EXAMPLE_PROMPT =
 
 export function LiveView({ onKindSelect }: { onKindSelect?: (k: ArtifactKind) => void }) {
   const [prompt, setPrompt] = useState(EXAMPLE_PROMPT);
-  const { items, status, error, send, reset } = useArtifactStream();
+  const { items, status, error, send, reset, runInfo } = useArtifactStream();
 
   const artifactCount = items.filter((it) => it.type === "artifact").length;
   const activeId = streamingItemId(items, status);
@@ -53,7 +53,7 @@ export function LiveView({ onKindSelect }: { onKindSelect?: (k: ArtifactKind) =>
         <ZoneTag label="System · internals" />
         <div className="flex items-start justify-between gap-[30px]">
           <Masthead onReset={reset} showReset={items.length > 0} />
-          <Readout status={status} artifactCount={artifactCount} />
+          <Readout status={status} artifactCount={artifactCount} adapter={runInfo.adapter} model={runInfo.model} />
         </div>
         <RegistryStrip onSelect={onKindSelect} />
       </div>

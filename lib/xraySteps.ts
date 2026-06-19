@@ -40,6 +40,6 @@ export const XRAY_STEPS: XRayStep[] = [
     title: "RENDER",
     code: "renderArtifact() → <ChartArtifact/>",
     directive:
-      "renderArtifact validates the props and renders them into the typed component — the lookup and validation above happen inside this one call. What you watched stream in LIVE is exactly this path, slowed down.",
+      "renderArtifact() is the call LIVE makes: registry lookup → safeParse → the typed component, all in one step. This walkthrough mounts <ChartArtifact/> directly so the reveal lands on this step — the LIVE path runs the same three operations above, at full speed.",
   },
 ];

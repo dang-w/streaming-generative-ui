@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+
 import { renderArtifact } from "@/lib/renderArtifact";
 
 const fixtures: Array<{ label: string; kind: string; props: unknown }> = [
@@ -80,6 +82,8 @@ const fixtures: Array<{ label: string; kind: string; props: unknown }> = [
 ];
 
 export default function DevPage() {
+  // Dev-only fixture page — not part of the public surface.
+  if (process.env.NODE_ENV === "production") notFound();
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-12">
       <header>

@@ -9,29 +9,24 @@ export function ArtifactBand({
   caption,
   kind,
   streaming,
-  shown,
   children,
 }: {
   caption: string;
   kind: ArtifactKind | "text";
   streaming: boolean;
-  /** Force the reveal state. When omitted, the band fades/slides in on mount. */
-  shown?: boolean;
   children: ReactNode;
 }) {
   // Start hidden and flip on the next frame so the .band → .band.show CSS
-  // transition actually fires (mount === stream-in). An explicit `shown` prop
-  // overrides this (e.g. for non-streaming contexts).
+  // transition actually fires (mount === stream-in).
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(id);
   }, []);
-  const isShown = shown ?? mounted;
 
   const schema = SCHEMA_NAME[kind as ArtifactKind] ?? `${kind}Schema`;
   return (
-    <div className={`band mb-6${isShown ? " show" : ""}`}>
+    <div className={`band mb-6${mounted ? " show" : ""}`}>
       <div className="mb-2 flex items-baseline justify-between">
         <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-ink-2">
           {caption}

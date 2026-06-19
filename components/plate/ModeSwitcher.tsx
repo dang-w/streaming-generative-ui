@@ -6,8 +6,6 @@ const LABEL: Record<Mode, string> = {
   registry: "REGISTRY",
 };
 
-const DISABLED: Record<Mode, boolean> = { live: false, xray: false, registry: false };
-
 export function ModeSwitcher({
   mode,
   onChange,
@@ -20,25 +18,18 @@ export function ModeSwitcher({
       <div className="inline-flex border-[0.8px] border-ink-1">
         {MODES.map((m) => {
           const active = m === mode;
-          const disabled = DISABLED[m];
           return (
             <button
               key={m}
               type="button"
               aria-pressed={active}
-              disabled={disabled}
-              onClick={() => !disabled && onChange(m)}
+              onClick={() => onChange(m)}
               className={[
                 "border-r-[0.5px] border-ink-3 px-[22px] py-2.5 text-[11px] uppercase tracking-[0.14em] last:border-r-0",
-                active
-                  ? "bg-orange font-bold text-paper"
-                  : disabled
-                    ? "cursor-not-allowed text-ink-4"
-                    : "text-ink-3 hover:text-ink-1",
+                active ? "bg-orange font-bold text-paper" : "text-ink-3 hover:text-ink-1",
               ].join(" ")}
             >
               {LABEL[m]}
-              {disabled && <span className="ml-1.5 text-[8px] text-ink-4">soon</span>}
             </button>
           );
         })}

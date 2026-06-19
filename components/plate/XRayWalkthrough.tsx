@@ -192,7 +192,7 @@ export function XRayWalkthrough() {
             disabled={step === 0 && !replaying}
             className="hover:text-ink-1 disabled:opacity-30 disabled:hover:text-ink-2"
           >
-            <span className="text-ink-3">◀</span> <b className="text-ink-1">PREV</b>
+            <span aria-hidden className="text-ink-3">◀</span> <b className="text-ink-1">PREV</b>
           </button>
           <button
             type="button"
@@ -203,10 +203,10 @@ export function XRayWalkthrough() {
             disabled={step === XRAY_STEPS.length - 1 && !replaying}
             className="hover:text-ink-1 disabled:opacity-30 disabled:hover:text-ink-2"
           >
-            <span className="text-ink-3">▶</span> <b className="text-ink-1">NEXT</b>
+            <span aria-hidden className="text-ink-3">▶</span> <b className="text-ink-1">NEXT</b>
           </button>
           <button type="button" onClick={startReplay} className="hover:text-orange">
-            <span className="text-ink-3">⟲</span> <b className="text-ink-1">AUTO-REPLAY</b>{" "}
+            <span aria-hidden className="text-ink-3">⟲</span> <b className="text-ink-1">AUTO-REPLAY</b>{" "}
             <span className="text-ink-3">(slow)</span>
           </button>
         </div>
