@@ -1,5 +1,7 @@
 # Streaming Generative UI
 
+*This repo is one of two small experiments written up in [Don't take the model's word for it](https://www.danwalsh.co/blog/dont-take-the-models-word-for-it).*
+
 A small Next.js app that turns a streamed LLM response into **live UI**. You type a
 prompt; the model streams back a short intro and then emits **typed tool-calls** that
 render as on-screen *artifacts* — a chart, a table, a metric card, a prose block — as
