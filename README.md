@@ -5,6 +5,8 @@ prompt; the model streams back a short intro and then emits **typed tool-calls**
 render as on-screen *artifacts* — a chart, a table, a metric card, a prose block — as
 they arrive, over a single connection.
 
+![LIVE mode — a prompt streams back a short intro, then a bar chart, a metric card, a table, and a summary render one at a time as the model emits each typed artifact](public/images/streaming.gif)
+
 The whole thing is built around one idea worth learning from:
 
 > **A single typed registry is the source of truth for every artifact.** The model's
@@ -49,6 +51,8 @@ The UI has a mode switcher at the top (deep-linkable via `?mode=`):
   you can watch each stage (wire event → lookup → validate → render).
 - **REGISTRY** — browse every artifact kind alongside its live example, its registry
   entry, and its schema.
+
+![X-RAY mode — stepping through the render pipeline one stage at a time: streaming tool-call, registry lookup, schema validation via safeParse, then render](public/images/xray.gif)
 
 ---
 
