@@ -44,6 +44,23 @@ MODEL_ADAPTER=stub pnpm dev
 
 ---
 
+## Deploy (public demo)
+
+The repo ships a [`vercel.json`](vercel.json) that pins `MODEL_ADAPTER=stub`, so a
+public deploy runs the deterministic stub adapter by default — **no API key on the
+server, no live token spend, nothing to abuse on the open endpoint.** The full
+streaming-and-render pipeline still works; only the model output is canned.
+
+1. Import the GitHub repo at [vercel.com/new](https://vercel.com/new).
+2. Framework preset auto-detects as **Next.js** — accept the defaults.
+3. Deploy. No environment variables are required for the stub demo.
+
+To run the **live** model on a deployment instead, set `MODEL_ADAPTER=anthropic` and
+`ANTHROPIC_API_KEY` in the Vercel project's environment variables. Only do this behind
+rate-limiting or auth — the `/api/generate` endpoint is otherwise open to the world.
+
+---
+
 ## The three modes
 
 The UI has a mode switcher at the top (deep-linkable via `?mode=`):
