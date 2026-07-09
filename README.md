@@ -7,6 +7,10 @@ prompt; the model streams back a short intro and then emits **typed tool-calls**
 render as on-screen *artifacts* — a chart, a table, a metric card, a prose block — as
 they arrive, over a single connection.
 
+**[▶ Live demo](https://streaming-generative-ui.vercel.app/)** — runs the deterministic
+stub adapter, so it shows the full streaming-and-render pipeline with canned output (no
+API key, no token spend). See [Deploy](#deploy-public-demo) for why.
+
 ![LIVE mode — a prompt streams back a short intro, then a bar chart, a metric card, a table, and a summary render one at a time as the model emits each typed artifact](public/images/streaming.gif)
 
 The whole thing is built around one idea worth learning from:
